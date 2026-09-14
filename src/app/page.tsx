@@ -228,7 +228,7 @@ export default async function HomePage() {
                 Best AI Tools for Specific Tasks
               </h2>
               <p className="text-sm text-zinc-300 mt-1">
-                Curated rankings based on real engineering workflows, compiler testing, and context capabilities.
+                Curated rankings based on developer workflows, documented capabilities, and structured editorial evaluation.
               </p>
             </div>
             <Link

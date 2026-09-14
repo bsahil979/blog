@@ -37,7 +37,7 @@ export default function AboutPage() {
             The software industry is experiencing its most rapid transformation since the advent of open-source and cloud computing. Every week, new AI-powered code editors, terminal agents, and reasoning models launch with competing promises of 10x productivity.
           </p>
           <p>
-            For engineering leaders and working developers, separating marketing hype from genuine developer velocity is exhausting. <strong className="text-white">AIForDevs</strong> was founded to provide transparent, technical evaluations based on real compiler tests, architectural refactoring, and day-to-day developer ergonomics.
+            For engineering leaders and working developers, separating marketing hype from genuine developer velocity is exhausting. <strong className="text-white">AIForDevs</strong> was founded to provide transparent, technical evaluations based on documented capabilities, developer workflows, and day-to-day engineering ergonomics.
           </p>
         </section>
 
@@ -66,10 +66,10 @@ export default function AboutPage() {
             How We Evaluate Tools
           </h2>
           <p>
-            Rather than relying on synthetic multi-choice benchmarks that can be memorized during training, our evaluations test assistants on actual repository migrations, complex type-narrowing bugs in TypeScript and Python, and multi-file context boundaries.
+            Rather than relying solely on synthetic multi-choice benchmarks that can be memorized during training, our editorial analysis reviews developer assistants on real-world engineering criteria: workflow integration, codebase context depth, multi-file editing support, and developer ergonomics.
           </p>
           <p>
-            For a complete breakdown of our evaluation criteria, read our{' '}
+            For a complete breakdown of our evaluation criteria and scoring rubrics, read our{' '}
             <a href="/methodology" className="text-indigo-400 hover:text-indigo-300 font-semibold underline underline-offset-4">
               Editorial Scoring Methodology &rarr;
             </a>

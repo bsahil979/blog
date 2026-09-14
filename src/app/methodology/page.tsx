@@ -22,7 +22,7 @@ export default function MethodologyPage() {
       weight: '25%',
       focus: 'Code synthesis, complex problem solving, and multi-file editing',
       description:
-        'We evaluate how effectively the tool drafts syntactically accurate code, manages complex algorithmic requirements, adheres to modern framework idioms (e.g. Next.js App Router, TypeScript, React 19), and coordinates multi-file mutations without breaking existing project dependencies.',
+        'Our editorial methodology evaluates how effectively the tool drafts syntactically accurate code, manages complex algorithmic requirements, adheres to modern framework idioms (e.g. Next.js App Router, TypeScript, React 19), and coordinates multi-file mutations without breaking existing project dependencies.',
     },
     {
       name: 'Developer Workflow',
@@ -36,7 +36,7 @@ export default function MethodologyPage() {
       weight: '20%',
       focus: 'Syntax accuracy, instruction adherence, and predictable output',
       description:
-        'Software engineers require deterministic behavior over clever randomness. We evaluate how reliably a tool adheres to custom project constraints (e.g. .cursorrules or system prompts), minimizes syntax hallucinations, and handles edge cases without inventing non-existent APIs or deprecated patterns.',
+        'Software engineers require deterministic behavior over clever randomness. Our editorial methodology evaluates how reliably a tool adheres to custom project constraints (e.g. .cursorrules or system prompts), minimizes syntax hallucinations, and handles edge cases without inventing non-existent APIs or deprecated patterns.',
     },
     {
       name: 'Ease of Use',
@@ -50,7 +50,7 @@ export default function MethodologyPage() {
       weight: '15%',
       focus: 'Feature accessibility relative to cost and plan predictability',
       description:
-        'We evaluate the clarity and fairness of the pricing model. This includes the utility of the free tier, quota predictability (avoiding opaque rate limits or hidden throttling), and whether the tool delivers adequate value for solo developers, startups, or enterprise teams.',
+        'Our editorial methodology evaluates the clarity and fairness of the pricing model. This includes the utility of the free tier, quota predictability (avoiding opaque rate limits or hidden throttling), and whether the tool delivers adequate value for solo developers, startups, or enterprise teams.',
     },
   ];
 
@@ -67,7 +67,7 @@ export default function MethodologyPage() {
           AIForDevs Editorial Methodology
         </h1>
         <p className="text-base sm:text-lg text-zinc-200 leading-relaxed font-normal">
-          AIForDevs is an independent technical guide built by and for software engineers. Here is exactly how we evaluate tools, assign editorial ratings, handle pricing data, and maintain editorial integrity.
+          AIForDevs is an independent technical guide built by and for software engineers. Here is exactly how our editorial team reviews tools, assigns structured editorial ratings, handles pricing data, and maintains editorial integrity.
         </p>
       </div>
 
