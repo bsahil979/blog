@@ -4,6 +4,7 @@ import './globals.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { StructuredData } from '@/components/ui/StructuredData';
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { generateWebsiteSchema, constructMetadata } from '@/lib/seo';
 
 const geistSans = Geist({
@@ -42,6 +43,7 @@ export default function RootLayout({
         <Header />
         <main className="flex-1 w-full">{children}</main>
         <Footer />
+        <GoogleAnalytics />
       </body>
     </html>
   );
