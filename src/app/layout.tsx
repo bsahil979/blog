@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { StructuredData } from '@/components/ui/StructuredData';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
-import { generateWebsiteSchema, constructMetadata } from '@/lib/seo';
+import { generateWebsiteSchema, generateOrganizationSchema, constructMetadata } from '@/lib/seo';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -30,6 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const websiteSchema = generateWebsiteSchema();
+  const organizationSchema = generateOrganizationSchema();
 
   return (
     <html
@@ -38,6 +39,7 @@ export default function RootLayout({
     >
       <head>
         <StructuredData data={websiteSchema} />
+        <StructuredData data={organizationSchema} />
       </head>
       <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100 font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
         <Header />

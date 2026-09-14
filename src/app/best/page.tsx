@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { getAllGuides } from '@/lib/db';
 import { constructMetadata } from '@/lib/seo';
 import { BookOpenIcon, ArrowRightIcon } from '@/components/ui/Icons';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 
 export const metadata: Metadata = constructMetadata({
-  title: 'Best AI Tools for Developers: Guides & Curated Rankings — AIForDevs',
+  title: 'Best AI Tools for Developers: Guides & Curated Rankings (2026) — AIForDevs',
   description:
     'Curated and ranked AI tools for specific developer use cases: best AI for Python, debugging, code review, SQL, React, and test generation.',
   canonicalUrl: '/best',
@@ -15,7 +16,15 @@ export default async function BestGuidesIndexPage() {
   const guides = await getAllGuides();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+      {/* Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { name: 'Home', url: '/' },
+          { name: 'Best AI Guides', url: '/best' },
+        ]}
+      />
+
       {/* Header */}
       <div className="max-w-3xl mb-12">
         <div className="inline-flex items-center gap-2 text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider mb-2">
@@ -26,7 +35,7 @@ export default async function BestGuidesIndexPage() {
           Best AI Tools for Developers
         </h1>
         <p className="text-base sm:text-lg text-zinc-300 leading-relaxed font-normal">
-          Comprehensive rankings tailored to specific developer workflows. We test AI assistants against real-world compiler errors, large repository indexing, and multi-file code generation.
+          Comprehensive rankings tailored to specific developer workflows, evaluated on technical capabilities, codebase indexing, and multi-file code generation.
         </p>
       </div>
 

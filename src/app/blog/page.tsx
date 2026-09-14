@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getAllArticles } from '@/lib/db';
 import { constructMetadata } from '@/lib/seo';
 import { BookOpenIcon, ArrowRightIcon } from '@/components/ui/Icons';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 
 export const metadata: Metadata = constructMetadata({
   title: 'Engineering Blog & Developer Guides — AIForDevs',
@@ -17,7 +18,15 @@ export default async function BlogIndexPage() {
   const gridArticles = articles.slice(1);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+      {/* Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { name: 'Home', url: '/' },
+          { name: 'Engineering Blog', url: '/blog' },
+        ]}
+      />
+
       <div className="max-w-3xl mb-10">
         <div className="inline-flex items-center gap-2 text-xs font-mono font-bold text-amber-400 uppercase tracking-wider mb-2">
           <BookOpenIcon className="w-4 h-4" />

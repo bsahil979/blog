@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { getAllTools, getToolBySlug, getComparisonsForTool } from '@/lib/db';
+import { getAllTools, getToolBySlug, getComparisonsForTool, getAllGuides } from '@/lib/db';
 import { ToolScores } from '@/components/tools/ToolScores';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Badge } from '@/components/ui/Badge';
@@ -14,6 +14,7 @@ import {
   ScaleIcon,
   InfoIcon,
   CalendarIcon,
+  BookOpenIcon,
 } from '@/components/ui/Icons';
 import {
   constructMetadata,
@@ -41,7 +42,7 @@ export async function generateMetadata({
   }
 
   return constructMetadata({
-    title: `${tool.name} Review, Scores & Architecture — AIForDevs`,
+    title: `${tool.name} Review: Features, Pricing & Developer Evaluation — AIForDevs`,
     description: `${tool.name} editorial review for software engineers: ${tool.tagline} Compare scores, capabilities, pros & cons, and verified features.`,
     canonicalUrl: `/tools/${tool.slug}`,
   });
@@ -61,6 +62,11 @@ export default async function ToolDetailPage({ params }: ToolPageProps) {
     .map((altSlug) => allTools.find((t) => t.slug === altSlug))
     .filter(Boolean);
 
+  const allGuides = await getAllGuides();
+  const featuredGuides = allGuides.filter((g) =>
+    g.rankedTools.some((rt) => rt.toolSlug === tool.slug)
+  );
+
   const softwareSchema = generateSoftwareApplicationSchema(tool);
 
   return (
@@ -70,6 +76,7 @@ export default async function ToolDetailPage({ params }: ToolPageProps) {
       {/* Breadcrumb Navigation */}
       <Breadcrumbs
         items={[
+          { name: 'Home', url: '/' },
           { name: 'Tools', url: '/tools' },
           { name: tool.name, url: `/tools/${tool.slug}` },
         ]}
@@ -351,6 +358,27 @@ export default async function ToolDetailPage({ params }: ToolPageProps) {
                       </p>
                     </div>
                     <RatingScore score={alt!.editorialRating} size="sm" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Featured in Curated Guides */}
+          {featuredGuides.length > 0 && (
+            <div className="p-6 rounded-xl bg-[#13151a] border border-[#262830] space-y-3.5">
+              <h3 className="text-xs font-mono font-bold uppercase text-zinc-200 tracking-wider flex items-center gap-1.5">
+                <BookOpenIcon className="w-4 h-4 text-cyan-400" />
+                <span>Featured in Curated Guides</span>
+              </h3>
+              <div className="space-y-2">
+                {featuredGuides.slice(0, 4).map((guide) => (
+                  <Link
+                    key={guide.id}
+                    href={`/best/${guide.slug}`}
+                    className="block p-3 rounded-lg bg-[#0b0c0e] hover:bg-[#181a21] border border-[#262830] hover:border-cyan-500/60 transition-colors text-xs font-semibold text-zinc-200 hover:text-white"
+                  >
+                    {guide.title} &rarr;
                   </Link>
                 ))}
               </div>

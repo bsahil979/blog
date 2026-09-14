@@ -14,6 +14,17 @@ export interface ComparisonVerdict {
   finalThought: string;
 }
 
+export interface ComparisonFAQ {
+  question: string;
+  answer: string;
+}
+
+export interface ComparisonUseCase {
+  title: string;
+  recommendation: string;
+  reasoning: string;
+}
+
 export interface Comparison {
   id: string;
   slug: string;
@@ -36,4 +47,8 @@ export interface Comparison {
     content: string;
   }[];
   lastReviewed: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  faqs?: ComparisonFAQ[];
+  useCases?: ComparisonUseCase[];
 }

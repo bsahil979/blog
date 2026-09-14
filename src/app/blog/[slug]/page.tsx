@@ -35,6 +35,65 @@ export async function generateMetadata({
   });
 }
 
+function renderFormattedText(text: string) {
+  const parts: React.ReactNode[] = [];
+  let lastIdx = 0;
+  const regex = /\[([^\]]+)\]\(([^)]+)\)|`([^`]+)`|\*\*([^*]+)\*\*/g;
+  let match;
+  let key = 0;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIdx) {
+      parts.push(text.slice(lastIdx, match.index));
+    }
+    if (match[1] && match[2]) {
+      const href = match[2];
+      const isInternal = href.startsWith('/');
+      parts.push(
+        isInternal ? (
+          <Link
+            key={key++}
+            href={href}
+            className="text-indigo-400 hover:text-indigo-300 underline font-medium"
+          >
+            {match[1]}
+          </Link>
+        ) : (
+          <a
+            key={key++}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-indigo-400 hover:text-indigo-300 underline font-medium"
+          >
+            {match[1]}
+          </a>
+        )
+      );
+    } else if (match[3]) {
+      parts.push(
+        <code
+          key={key++}
+          className="px-1.5 py-0.5 rounded bg-[#1c1f27] border border-[#2d313c] text-indigo-300 text-xs font-mono"
+        >
+          {match[3]}
+        </code>
+      );
+    } else if (match[4]) {
+      parts.push(
+        <strong key={key++} className="font-bold text-white">
+          {match[4]}
+        </strong>
+      );
+    }
+    lastIdx = regex.lastIndex;
+  }
+  if (lastIdx < text.length) {
+    parts.push(text.slice(lastIdx));
+  }
+  return parts.length > 0 ? parts : text;
+}
+
 export default async function ArticleDetailPage({
   params,
 }: ArticlePageProps) {
@@ -58,6 +117,7 @@ export default async function ArticleDetailPage({
 
       <Breadcrumbs
         items={[
+          { name: 'Home', url: '/' },
           { name: 'Blog', url: '/blog' },
           { name: article.title, url: `/blog/${article.slug}` },
         ]}
@@ -169,7 +229,7 @@ export default async function ArticleDetailPage({
               <ul key={idx} className="space-y-2 pl-5 list-disc marker:text-indigo-400">
                 {items.map((item, iIdx) => (
                   <li key={iIdx} className="text-zinc-200 text-sm sm:text-base">
-                    {item.replace(/^- /, '')}
+                    {renderFormattedText(item.replace(/^- /, ''))}
                   </li>
                 ))}
               </ul>
@@ -177,7 +237,7 @@ export default async function ArticleDetailPage({
           }
           return (
             <p key={idx} className="text-zinc-200 leading-relaxed text-sm sm:text-base font-normal">
-              {block}
+              {renderFormattedText(block)}
             </p>
           );
         })}

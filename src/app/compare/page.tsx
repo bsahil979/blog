@@ -3,9 +3,10 @@ import { getAllComparisons } from '@/lib/db';
 import { ComparisonCard } from '@/components/compare/ComparisonCard';
 import { constructMetadata } from '@/lib/seo';
 import { ScaleIcon } from '@/components/ui/Icons';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 
 export const metadata: Metadata = constructMetadata({
-  title: 'Compare AI Coding Assistants & Developer Tools — AIForDevs',
+  title: 'Compare AI Coding Assistants & Developer Tools (2026) — AIForDevs',
   description:
     'Detailed head-to-head comparisons of AI developer tools. Side-by-side feature matrices, editorial verdicts, and category scores for Cursor, GitHub Copilot, Claude, and more.',
   canonicalUrl: '/compare',
@@ -15,7 +16,15 @@ export default async function CompareIndexPage() {
   const comparisons = await getAllComparisons();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+      {/* Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { name: 'Home', url: '/' },
+          { name: 'Comparisons', url: '/compare' },
+        ]}
+      />
+
       {/* Header */}
       <div className="max-w-3xl mb-12">
         <div className="inline-flex items-center gap-2 text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider mb-2">

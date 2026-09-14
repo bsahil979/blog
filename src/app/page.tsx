@@ -69,8 +69,8 @@ export default async function HomePage() {
           </h1>
 
           {/* Subheading — WCAG AA compliant text */}
-          <p className="text-base sm:text-lg text-zinc-300 max-w-2xl mx-auto leading-relaxed mb-6 font-normal">
-            Compare AI coding assistants, research tools, productivity apps, and more — all in one place with transparent editorial scores.
+          <p className="text-base sm:text-lg text-zinc-300 max-w-3xl mx-auto leading-relaxed mb-6 font-normal">
+            AIForDevs helps developers compare AI coding assistants, coding agents, debugging tools, and code review software. Explore independent, structured comparisons of Cursor, GitHub Copilot, Claude Code, Windsurf, ChatGPT, and more.
           </p>
 
           {/* Primary Action: Prominent Search Box */}

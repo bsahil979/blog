@@ -14,7 +14,10 @@ interface BreadcrumbsProps {
 }
 
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
-  const allItems: BreadcrumbStep[] = [{ name: 'Home', url: '/' }, ...items];
+  const allItems: BreadcrumbStep[] =
+    items.length > 0 && items[0].url === '/'
+      ? items
+      : [{ name: 'Home', url: '/' }, ...items];
   const schema = generateBreadcrumbSchema(allItems);
 
   return (

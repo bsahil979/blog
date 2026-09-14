@@ -1,18 +1,21 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { getAllGuides, getGuideBySlug, getAllTools } from '@/lib/db';
+import { getAllGuides, getGuideBySlug, getAllTools, getAllComparisons } from '@/lib/db';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { Badge } from '@/components/ui/Badge';
 import { RatingScore } from '@/components/ui/RatingScore';
 import { VisitButton } from '@/components/ui/VisitButton';
-import { constructMetadata } from '@/lib/seo';
+import { StructuredData } from '@/components/ui/StructuredData';
+import { ComparisonCard } from '@/components/compare/ComparisonCard';
+import { constructMetadata, generateItemListSchema } from '@/lib/seo';
 import { formatReviewPeriod } from '@/lib/utils';
 import {
   CheckIcon,
   CalendarIcon,
   ArrowRightIcon,
   SparklesIcon,
+  ScaleIcon,
 } from '@/components/ui/Icons';
 
 interface BestGuidePageProps {
@@ -52,9 +55,30 @@ export default async function BestGuideDetailPage({
   }
 
   const allTools = await getAllTools();
+  const allComparisons = await getAllComparisons();
+
+  const rankedSlugs = new Set(guide.rankedTools.map((t) => t.toolSlug));
+  const relevantComparisons = allComparisons
+    .filter((c) => rankedSlugs.has(c.toolASlug) || rankedSlugs.has(c.toolBSlug))
+    .slice(0, 3);
+
+  const itemListSchema = generateItemListSchema(
+    guide.headline,
+    guide.rankedTools.map((rt) => {
+      const toolObj = allTools.find((t) => t.slug === rt.toolSlug);
+      return {
+        name: toolObj ? toolObj.name : rt.toolSlug,
+        url: `/tools/${rt.toolSlug}`,
+        position: rt.rank,
+        description: rt.whyChosen,
+      };
+    })
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+      <StructuredData data={itemListSchema} />
+
       {/* Breadcrumbs */}
       <Breadcrumbs
         items={[
@@ -302,6 +326,27 @@ export default async function BestGuideDetailPage({
                   {faq.answer}
                 </p>
               </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Head-to-Head Comparisons for Ranked Tools */}
+      {relevantComparisons.length > 0 && (
+        <section className="pt-8 border-t border-[#20222a] space-y-6">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider">
+            <ScaleIcon className="w-4 h-4" />
+            <span>Direct Comparisons</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white tracking-tight">
+            Compare Top Tools Head-to-Head
+          </h2>
+          <p className="text-sm text-zinc-300">
+            Explore deep side-by-side feature matrices and workflow trade-offs between tools featured in this guide.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {relevantComparisons.map((comp) => (
+              <ComparisonCard key={comp.id} comparison={comp} />
             ))}
           </div>
         </section>

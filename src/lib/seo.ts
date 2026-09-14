@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { Tool } from '@/types/tool';
 import { Article } from '@/types/article';
 
-export const SITE_URL = 'https://aifordevs.tech';
+export const SITE_URL = 'https://www.aifordevs.tech';
 export const SITE_NAME = 'AIForDevs';
 export const SITE_TAGLINE = 'Find the right AI tool for your workflow.';
 export const DEFAULT_TITLE = 'AIForDevs — Find & Compare the Best AI Tools for Developers';
@@ -82,6 +82,17 @@ export function generateWebsiteSchema() {
   };
 }
 
+export function generateOrganizationSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: `${SITE_URL}/og-default.png`,
+    description: DEFAULT_DESCRIPTION,
+  };
+}
+
 export function generateSoftwareApplicationSchema(tool: Tool) {
   return {
     '@context': 'https://schema.org',
@@ -130,6 +141,24 @@ export function generateBreadcrumbSchema(items: { name: string; url: string }[])
       position: index + 1,
       name: item.name,
       item: `${SITE_URL}${item.url}`,
+    })),
+  };
+}
+
+export function generateItemListSchema(
+  name: string,
+  items: { name: string; url: string; position: number; description?: string }[]
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name,
+    itemListElement: items.map((item) => ({
+      '@type': 'ListItem',
+      position: item.position,
+      name: item.name,
+      url: item.url.startsWith('http') ? item.url : `${SITE_URL}${item.url}`,
+      ...(item.description ? { description: item.description } : {}),
     })),
   };
 }
