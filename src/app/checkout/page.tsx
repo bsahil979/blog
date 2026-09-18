@@ -9,11 +9,12 @@ import {
   CreditCard,
   Calendar,
   FileCheck,
-  CheckCircle2,
   AlertCircle,
   ArrowRight,
   Sparkles,
-  Info
+  Info,
+  CheckCircle2,
+  Bitcoin
 } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
 
@@ -22,23 +23,11 @@ export default function CheckoutPage() {
 
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [cvc, setCvc] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'crypto_btc'>('card');
   const [agreeTerms, setAgreeTerms] = useState(true);
   const [understandNonLottery, setUnderstandNonLottery] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Auto-fill test helper
-  const handleUseTestCard = () => {
-    setEmail('collector@thesecret.club');
-    setName('Julian Vance');
-    setCardNumber('4242 •••• •••• 4242');
-    setExpiry('12/28');
-    setCvc('888');
-    setError(null);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +38,7 @@ export default function CheckoutPage() {
       return;
     }
     if (!agreeTerms || !understandNonLottery) {
-      setError('Please accept the transparent purchase terms and non-lottery confirmation.');
+      setError('Please accept the purchase terms and non-lottery confirmation.');
       return;
     }
 
@@ -59,7 +48,7 @@ export default function CheckoutPage() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name })
+        body: JSON.stringify({ email, name, paymentMethod })
       });
 
       const data = await res.json();
@@ -68,10 +57,16 @@ export default function CheckoutPage() {
         throw new Error(data.error || 'Payment failed.');
       }
 
+      // If Stripe returns a hosted checkout URL, redirect to Stripe
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+
       trackEvent('checkout_completed', { secret_id: data.secretId });
       trackEvent('secret_created', { secret_id: data.secretId });
 
-      // Direct to success page
+      // Direct to confirmation page
       router.push(`/checkout/success?id=${data.secretId}&email=${encodeURIComponent(data.email)}`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'An error occurred during checkout.';
@@ -90,7 +85,7 @@ export default function CheckoutPage() {
             className="flex items-center gap-2 text-xs font-mono text-zinc-400 hover:text-white transition"
           >
             <Lock className="h-3.5 w-3.5 text-amber-400" />
-            <span>THE SECRET / SECURE CHECKOUT</span>
+            <span>THE SECRET / SECURE PAYMENT</span>
           </Link>
           <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400">
             <ShieldCheck className="h-4 w-4" />
@@ -106,20 +101,22 @@ export default function CheckoutPage() {
                 <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-amber-400 font-semibold">
                   ORDER SUMMARY
                 </span>
-                <h2 className="text-2xl font-bold text-white mt-1">THE SECRET</h2>
-                <p className="text-xs text-zinc-400">
-                  Single Digital Mystery Experience License
+                <h2 className="text-2xl font-bold text-white mt-1">
+                  The Secret — Digital Mystery Experience
+                </h2>
+                <p className="text-xs text-amber-400/90 font-mono mt-0.5">
+                  One-time purchase • $19.99 • No subscription
                 </p>
               </div>
 
               {/* Price Row */}
               <div className="flex items-baseline justify-between border-b border-white/10 pb-4">
-                <span className="text-sm text-zinc-400">Total Due Today</span>
+                <span className="text-sm text-zinc-400">Total Due</span>
                 <div className="text-right">
                   <span className="text-3xl font-black text-white">$19.99</span>
                   <span className="text-xs text-zinc-500 ml-1">USD</span>
                   <div className="text-[10px] text-emerald-400 font-mono">
-                    One-time payment • No subscriptions
+                    Guaranteed digital delivery • No recurring fees
                   </div>
                 </div>
               </div>
@@ -129,7 +126,7 @@ export default function CheckoutPage() {
                 <div className="flex items-start gap-2.5 text-zinc-300">
                   <Calendar className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
                   <div>
-                    <strong className="block text-white font-mono text-[11px]">REVEAL DATE & TIME</strong>
+                    <strong className="block text-white font-mono text-[11px]">SYNCHRONOUS REVEAL</strong>
                     <span className="text-zinc-400">September 30, 2026 — 8:00 PM UTC</span>
                   </div>
                 </div>
@@ -138,7 +135,7 @@ export default function CheckoutPage() {
                   <FileCheck className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
                   <div>
                     <strong className="block text-white font-mono text-[11px]">DELIVERY FORMAT</strong>
-                    <span className="text-zinc-400">Guaranteed interactive dossier, original soundscape & cryptographic certificate.</span>
+                    <span className="text-zinc-400">Interactive Decrypted Dossier, Original Audio Soundscape & Archival Certificate.</span>
                   </div>
                 </div>
 
@@ -146,19 +143,19 @@ export default function CheckoutPage() {
                   <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5" />
                   <div>
                     <strong className="block text-white font-mono text-[11px]">REFUND POLICY</strong>
-                    <span className="text-zinc-400">100% refundable prior to the scheduled reveal date.</span>
+                    <span className="text-zinc-400">100% money-back guarantee prior to the scheduled reveal date.</span>
                   </div>
                 </div>
               </div>
 
-              {/* Non-Gambling Absolute Reassurance Box */}
+              {/* Transparency Guarantee Box */}
               <div className="rounded-2xl border border-amber-500/20 bg-amber-950/20 p-4 text-xs text-zinc-300 space-y-1.5 leading-relaxed">
                 <div className="flex items-center gap-1.5 text-amber-400 font-mono text-[11px] font-bold">
                   <Info className="h-3.5 w-3.5" />
                   <span>TRANSPARENCY GUARANTEE</span>
                 </div>
                 <p className="text-[11px] text-zinc-300">
-                  This purchase is strictly for an artistic, multimedia digital entertainment product. It is <strong>NOT</strong> a lottery, raffle, sweepstakes, or investment. No cash winnings can be won.
+                  This purchase is strictly for an authentic, multimedia creative digital experience. It is <strong>NOT</strong> a lottery, raffle, prize draw, or gamble. No cash winnings are offered.
                 </p>
               </div>
             </div>
@@ -177,23 +174,14 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Right Column: Secure Payment Provider Form */}
+          {/* Right Column: Production Payment Provider Section */}
           <div className="lg:col-span-7">
             <div className="rounded-3xl border border-white/10 bg-zinc-900/90 p-6 sm:p-10 backdrop-blur-xl shadow-2xl space-y-6">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-white">Payment Details</h3>
-                  <p className="text-xs text-zinc-400 font-mono">
-                    Powered by Stripe Checkout Simulator
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleUseTestCard}
-                  className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[11px] font-mono text-amber-300 hover:bg-amber-500/20 transition"
-                >
-                  ⚡ Auto-fill Test Data
-                </button>
+              <div className="border-b border-white/10 pb-4">
+                <h3 className="text-xl font-bold text-white">Payment Method</h3>
+                <p className="text-xs text-zinc-400 font-sans">
+                  Choose your preferred secure payment method.
+                </p>
               </div>
 
               {error && (
@@ -202,6 +190,35 @@ export default function CheckoutPage() {
                   <span>{error}</span>
                 </div>
               )}
+
+              {/* Payment Method Selector */}
+              <div className="grid grid-cols-2 gap-3 font-mono text-xs">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('card')}
+                  className={`flex items-center justify-center gap-2 rounded-xl border p-3.5 transition ${
+                    paymentMethod === 'card'
+                      ? 'border-amber-400 bg-amber-500/10 text-white font-bold'
+                      : 'border-white/10 bg-black/40 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <CreditCard className="h-4 w-4 text-amber-400" />
+                  <span>Credit / Debit Card</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('crypto_btc')}
+                  className={`flex items-center justify-center gap-2 rounded-xl border p-3.5 transition ${
+                    paymentMethod === 'crypto_btc'
+                      ? 'border-amber-400 bg-amber-500/10 text-white font-bold'
+                      : 'border-white/10 bg-black/40 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <Bitcoin className="h-4 w-4 text-amber-400" />
+                  <span>BTC / Crypto</span>
+                </button>
+              </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Email Address */}
@@ -215,75 +232,52 @@ export default function CheckoutPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="your.email@domain.com"
-                    className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3.5 text-sm text-white placeholder-zinc-500 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
                   />
                   <p className="text-[10px] text-zinc-500 font-mono">
-                    Your unique Secret ID and confirmation will be sent here immediately.
+                    Your unique Secret ID and reveal instructions will be dispatched here.
                   </p>
                 </div>
 
-                {/* Name on Card */}
+                {/* Name */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-mono uppercase tracking-wider text-zinc-300">
-                    Cardholder Name
+                    Your Name (Optional)
                   </label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Elena Rostova"
+                    placeholder="Collector / Anonymous"
                     className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
                   />
                 </div>
 
-                {/* Card Number */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-mono uppercase tracking-wider text-zinc-300">
-                    Card Information <span className="text-amber-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      required
-                      value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
-                      placeholder="4242 4242 4242 4242"
-                      className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm font-mono text-white placeholder-zinc-500 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
-                    />
-                    <CreditCard className="pointer-events-none absolute right-4 top-3.5 h-4 w-4 text-zinc-500" />
+                {/* Method Specific Details */}
+                {paymentMethod === 'card' ? (
+                  <div className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-2 text-xs">
+                    <div className="flex items-center justify-between text-zinc-300 font-mono text-[11px]">
+                      <span className="flex items-center gap-1.5">
+                        <Lock className="h-3.5 w-3.5 text-emerald-400" />
+                        <span>Encrypted Card Gateway</span>
+                      </span>
+                      <span className="text-zinc-500">PCI-DSS Compliant</span>
+                    </div>
+                    <p className="text-zinc-400 text-[11px] leading-relaxed">
+                      Payments are processed securely via 256-bit SSL encryption. We never touch or store raw card information on our servers.
+                    </p>
                   </div>
-                </div>
-
-                {/* Expiry & CVC */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-mono uppercase tracking-wider text-zinc-300">
-                      MM / YY
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={expiry}
-                      onChange={(e) => setExpiry(e.target.value)}
-                      placeholder="12 / 28"
-                      className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm font-mono text-white placeholder-zinc-500 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
-                    />
+                ) : (
+                  <div className="rounded-2xl border border-amber-500/20 bg-amber-950/20 p-4 space-y-2 text-xs">
+                    <div className="flex items-center gap-2 text-amber-300 font-mono text-[11px] font-bold">
+                      <Bitcoin className="h-4 w-4 text-amber-400" />
+                      <span>Direct Crypto Settlement Layer</span>
+                    </div>
+                    <p className="text-zinc-400 text-[11px] leading-relaxed">
+                      Instant on-chain confirmation. Your Secret ID will be bound immediately upon network confirmation.
+                    </p>
                   </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-mono uppercase tracking-wider text-zinc-300">
-                      CVC / CVV
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={cvc}
-                      onChange={(e) => setCvc(e.target.value)}
-                      placeholder="888"
-                      className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm font-mono text-white placeholder-zinc-500 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
-                    />
-                  </div>
-                </div>
+                )}
 
                 {/* Mandated Disclosures & Checkboxes */}
                 <div className="space-y-3 pt-2">
@@ -295,7 +289,7 @@ export default function CheckoutPage() {
                       className="mt-0.5 rounded border-zinc-700 text-amber-500 focus:ring-amber-400"
                     />
                     <span>
-                      I understand this is a guaranteed digital mystery media product, <strong>not a lottery, prize draw, or gamble</strong>. No monetary winnings are promised.
+                      I understand this is a guaranteed digital mystery media experience, <strong>not a lottery, sweepstakes, or prize draw</strong>.
                     </span>
                   </label>
 
@@ -309,13 +303,13 @@ export default function CheckoutPage() {
                     <span>
                       I agree to the{' '}
                       <Link href="/terms" target="_blank" className="text-amber-400 underline">
-                        Terms of Service
+                        Terms
                       </Link>
                       ,{' '}
                       <Link href="/privacy" target="_blank" className="text-amber-400 underline">
-                        Privacy Policy
+                        Privacy
                       </Link>
-                      , and the pre-reveal{' '}
+                      , and the 100% pre-reveal{' '}
                       <Link href="/refund-policy" target="_blank" className="text-amber-400 underline">
                         Refund Policy
                       </Link>
@@ -324,7 +318,7 @@ export default function CheckoutPage() {
                   </label>
                 </div>
 
-                {/* Submit button */}
+                {/* Primary Action Button */}
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -345,7 +339,7 @@ export default function CheckoutPage() {
                 </button>
 
                 <div className="text-center text-[10px] font-mono text-zinc-500">
-                  🔒 Bank-Grade 256-Bit SSL Encryption • PCI-DSS Compliant Provider
+                  🔒 Bank-Grade 256-Bit SSL Encryption • Instant Secret Delivery
                 </div>
               </form>
             </div>

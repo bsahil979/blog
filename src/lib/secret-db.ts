@@ -1,10 +1,9 @@
 import { Secret, Order, SecretPublicView } from '@/types/secret';
 import { generateSecretId } from './crypto';
+import { supabaseAdmin, isSupabaseConfigured } from './supabase';
 
-// Canonical reveal timestamp specified in the product spec
 export const DEFAULT_REVEAL_DATE = '2026-09-30T20:00:00.000Z';
 
-// In-memory data store with mock persistence
 class SecretDatabase {
   private secrets: Map<string, Secret> = new Map();
   private orders: Map<string, Order> = new Map();
@@ -14,7 +13,6 @@ class SecretDatabase {
   }
 
   private seedDefaults() {
-    // 1. Canonical Secret from prompt (locked until Sep 30, 2026)
     const secret1: Secret = {
       id: 'sec_001_canonical',
       public_secret_id: 'SECRET-7F3A92',
@@ -45,7 +43,6 @@ class SecretDatabase {
       }
     };
 
-    // 2. Demo Secret that is already revealed (for instant testing & verification!)
     const secretDemo: Secret = {
       id: 'sec_002_demo',
       public_secret_id: 'SECRET-DEMO26',
@@ -64,7 +61,7 @@ class SecretDatabase {
         hash: 'b5d4045c3f466fa91fe2cc6abe79232a1a57cdf104f7a26e716e0a1e2789df78',
         edition: 'Genesis Edition — Verified Custody'
       }),
-      reveal_at: '2026-01-01T00:00:00.000Z', // past date
+      reveal_at: '2026-01-01T00:00:00.000Z',
       created_at: '2026-01-01T00:00:00.000Z',
       updated_at: '2026-01-01T00:00:00.000Z',
       status: 'revealed',
@@ -79,7 +76,6 @@ class SecretDatabase {
     this.secrets.set(secret1.public_secret_id, secret1);
     this.secrets.set(secretDemo.public_secret_id, secretDemo);
 
-    // Seed initial orders for dashboard realism
     this.orders.set('ord_demo_01', {
       id: 'ord_demo_01',
       stripe_payment_id: 'pi_3Psecret_001_mock',
@@ -91,31 +87,13 @@ class SecretDatabase {
       payment_status: 'succeeded',
       created_at: new Date(Date.now() - 86400000 * 2).toISOString()
     });
-
-    this.orders.set('ord_demo_02', {
-      id: 'ord_demo_02',
-      stripe_payment_id: 'pi_3Psecret_002_mock',
-      customer_email: 'mystery.seeker@domain.com',
-      customer_name: 'Julian Vance',
-      secret_id: 'SECRET-DEMO26',
-      amount: 1999,
-      currency: 'USD',
-      payment_status: 'succeeded',
-      created_at: new Date(Date.now() - 86400000 * 4).toISOString()
-    });
   }
-
-  // --- Secret Queries ---
 
   public getSecretByPublicId(publicId: string): Secret | null {
     const cleanId = publicId.trim().toUpperCase();
     return this.secrets.get(cleanId) || null;
   }
 
-  /**
-   * Safe view that NEVER exposes unrevealed content to the client
-   * unless current time >= reveal_at OR status is explicitly 'revealed'
-   */
   public getPublicSecretView(publicId: string, forceUnlock: boolean = false): SecretPublicView | null {
     const secret = this.getSecretByPublicId(publicId);
     if (!secret) return null;
@@ -165,6 +143,23 @@ class SecretDatabase {
     };
 
     this.secrets.set(public_secret_id, newSecret);
+
+    // Sync to Supabase in background if configured
+    if (isSupabaseConfigured && supabaseAdmin) {
+      supabaseAdmin.from('secrets').insert({
+        public_secret_id: newSecret.public_secret_id,
+        title: newSecret.title,
+        subtitle: newSecret.subtitle,
+        content: JSON.parse(newSecret.content),
+        content_type: newSecret.content_type,
+        reveal_at: newSecret.reveal_at,
+        status: newSecret.status,
+        metadata: newSecret.metadata
+      }).then(({ error }) => {
+        if (error) console.error('[Supabase Sync Error]', error);
+      });
+    }
+
     return newSecret;
   }
 
@@ -178,20 +173,31 @@ class SecretDatabase {
       updated_at: new Date().toISOString()
     };
     this.secrets.set(publicId.toUpperCase(), updated);
+
+    if (isSupabaseConfigured && supabaseAdmin) {
+      supabaseAdmin.from('secrets')
+        .update({
+          status: updated.status,
+          reveal_at: updated.reveal_at,
+          title: updated.title
+        })
+        .eq('public_secret_id', publicId.toUpperCase())
+        .then(({ error }) => {
+          if (error) console.error('[Supabase Update Error]', error);
+        });
+    }
+
     return updated;
   }
-
-  // --- Order & Purchase Management ---
 
   public createOrder(params: {
     customer_email: string;
     customer_name?: string;
     stripe_payment_id?: string;
+    payment_method?: string;
   }): { order: Order; secret: Secret } {
-    // Generate a brand new unique Secret for this customer
     const publicSecretId = generateSecretId();
 
-    // Default content for the guaranteed digital mystery experience
     const secret: Secret = {
       id: `sec_${Date.now()}`,
       public_secret_id: publicSecretId,
@@ -229,7 +235,7 @@ class SecretDatabase {
       id: orderId,
       stripe_payment_id: params.stripe_payment_id || `pi_${Date.now()}_mock`,
       customer_email: params.customer_email.toLowerCase().trim(),
-      customer_name: params.customer_name || 'Anonymous Collector',
+      customer_name: params.customer_name || 'Collector',
       secret_id: publicSecretId,
       amount: 1999, // $19.99
       currency: 'USD',
@@ -238,6 +244,35 @@ class SecretDatabase {
     };
 
     this.orders.set(orderId, order);
+
+    // Sync to Supabase if available
+    if (isSupabaseConfigured && supabaseAdmin) {
+      const client = supabaseAdmin;
+      client.from('secrets').insert({
+        public_secret_id: secret.public_secret_id,
+        title: secret.title,
+        subtitle: secret.subtitle,
+        content: JSON.parse(secret.content),
+        content_type: secret.content_type,
+        reveal_at: secret.reveal_at,
+        status: secret.status,
+        metadata: secret.metadata
+      }).then(() => {
+        return client.from('orders').insert({
+          payment_id: order.stripe_payment_id,
+          customer_email: order.customer_email,
+          customer_name: order.customer_name,
+          secret_id: order.secret_id,
+          amount: order.amount,
+          currency: order.currency,
+          payment_status: order.payment_status,
+          payment_method: params.payment_method || 'card'
+        });
+      }).then(({ error }) => {
+        if (error) console.error('[Supabase Order Sync Error]', error);
+      });
+    }
+
     return { order, secret };
   }
 
@@ -275,7 +310,6 @@ class SecretDatabase {
   }
 }
 
-// Global singleton to preserve state across Next.js dev hot-reloads
 declare global {
   // eslint-disable-next-line no-var
   var __secretDatabase: SecretDatabase | undefined;
