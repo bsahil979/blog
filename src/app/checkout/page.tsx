@@ -2,32 +2,45 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Link from 'next/link';
 import {
   Lock,
-  ShieldCheck,
-  CreditCard,
+  Copy,
+  Check,
   Calendar,
   FileCheck,
+  ShieldCheck,
   AlertCircle,
   ArrowRight,
   Sparkles,
   Info,
+  Bitcoin,
   CheckCircle2,
-  Bitcoin
+  Mail,
+  AlertTriangle
 } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
+
+const BTC_ADDRESS = 'bc1phzpx8pftykh6ypylwt030ecd974xy6924nv5qpeq00dmllchaeequp7nnd';
 
 export default function CheckoutPage() {
   const router = useRouter();
 
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'crypto_btc'>('card');
+  const [txHash, setTxHash] = useState('');
+  const [copied, setCopied] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(true);
   const [understandNonLottery, setUnderstandNonLottery] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleCopyAddress = () => {
+    navigator.clipboard.writeText(BTC_ADDRESS);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,35 +61,35 @@ export default function CheckoutPage() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, paymentMethod })
+        body: JSON.stringify({
+          email,
+          name,
+          paymentMethod: 'crypto_btc',
+          btcAddress: BTC_ADDRESS,
+          txHash: txHash || undefined
+        })
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Payment failed.');
-      }
-
-      // If Stripe returns a hosted checkout URL, redirect to Stripe
-      if (data.url) {
-        window.location.href = data.url;
-        return;
+        throw new Error(data.error || 'Failed to submit payment confirmation.');
       }
 
       trackEvent('checkout_completed', { secret_id: data.secretId });
       trackEvent('secret_created', { secret_id: data.secretId });
 
-      // Direct to confirmation page
-      router.push(`/checkout/success?id=${data.secretId}&email=${encodeURIComponent(data.email)}`);
+      // Direct to success page
+      router.push(`/checkout/success?id=${data.secretId}&email=${encodeURIComponent(data.email)}&method=btc`);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'An error occurred during checkout.';
+      const msg = err instanceof Error ? err.message : 'An error occurred during submission.';
       setError(msg);
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-screen bg-[#070709] py-12 px-4 sm:px-6 lg:px-8 text-zinc-100">
+    <div className="relative min-h-screen bg-[#070709] py-12 px-4 sm:px-6 lg:px-8 text-zinc-100 font-sans">
       <div className="mx-auto max-w-5xl">
         {/* Header Breadcrumb */}
         <div className="mb-8 flex items-center justify-between border-b border-white/10 pb-4">
@@ -85,16 +98,16 @@ export default function CheckoutPage() {
             className="flex items-center gap-2 text-xs font-mono text-zinc-400 hover:text-white transition"
           >
             <Lock className="h-3.5 w-3.5 text-amber-400" />
-            <span>THE SECRET / SECURE PAYMENT</span>
+            <span>THE SECRET / BITCOIN PAYMENT</span>
           </Link>
-          <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400">
-            <ShieldCheck className="h-4 w-4" />
-            <span>256-BIT ENCRYPTED</span>
+          <div className="flex items-center gap-1.5 text-xs font-mono text-amber-400">
+            <Bitcoin className="h-4 w-4" />
+            <span>BTC NETWORK ONLY</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          {/* Left Column: Order Summary & Mandatory Disclosures */}
+          {/* Left Column: Order Summary & Explicit Disclosures */}
           <div className="lg:col-span-5 space-y-6">
             <div className="rounded-3xl border border-white/10 bg-zinc-900/80 p-6 sm:p-8 backdrop-blur-xl shadow-2xl space-y-6">
               <div className="border-b border-white/10 pb-4">
@@ -111,12 +124,12 @@ export default function CheckoutPage() {
 
               {/* Price Row */}
               <div className="flex items-baseline justify-between border-b border-white/10 pb-4">
-                <span className="text-sm text-zinc-400">Total Due</span>
+                <span className="text-sm text-zinc-400">Amount Due</span>
                 <div className="text-right">
                   <span className="text-3xl font-black text-white">$19.99</span>
-                  <span className="text-xs text-zinc-500 ml-1">USD</span>
-                  <div className="text-[10px] text-emerald-400 font-mono">
-                    Guaranteed digital delivery • No recurring fees
+                  <span className="text-xs text-zinc-500 ml-1">USD in BTC</span>
+                  <div className="text-[10px] text-amber-400 font-mono">
+                    Pay via Bitcoin (BTC) Network
                   </div>
                 </div>
               </div>
@@ -148,7 +161,7 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Transparency Guarantee Box */}
+              {/* Strict Transparency Box */}
               <div className="rounded-2xl border border-amber-500/20 bg-amber-950/20 p-4 text-xs text-zinc-300 space-y-1.5 leading-relaxed">
                 <div className="flex items-center gap-1.5 text-amber-400 font-mono text-[11px] font-bold">
                   <Info className="h-3.5 w-3.5" />
@@ -174,14 +187,72 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Right Column: Production Payment Provider Section */}
+          {/* Right Column: Dedicated Bitcoin QR & Payment Form */}
           <div className="lg:col-span-7">
-            <div className="rounded-3xl border border-white/10 bg-zinc-900/90 p-6 sm:p-10 backdrop-blur-xl shadow-2xl space-y-6">
-              <div className="border-b border-white/10 pb-4">
-                <h3 className="text-xl font-bold text-white">Payment Method</h3>
-                <p className="text-xs text-zinc-400 font-sans">
-                  Choose your preferred secure payment method.
-                </p>
+            <div className="rounded-3xl border border-amber-500/30 bg-zinc-900/90 p-6 sm:p-10 backdrop-blur-xl shadow-2xl space-y-6">
+              {/* Bitcoin Header */}
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-400">
+                    <Bitcoin className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Scan & Pay with Bitcoin</h3>
+                    <p className="text-xs text-amber-400 font-mono">
+                      Pay $19.99 USD in Bitcoin (BTC)
+                    </p>
+                  </div>
+                </div>
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[11px] font-mono text-amber-300">
+                  ONLY BTC
+                </div>
+              </div>
+
+              {/* Critical Alert Banner: Only BTC */}
+              <div className="rounded-2xl border border-amber-500/40 bg-amber-950/40 p-4 text-xs text-amber-200 flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 shrink-0 text-amber-400 mt-0.5" />
+                <div className="space-y-0.5">
+                  <p className="font-bold text-amber-300">
+                    Only send Bitcoin network assets to this address.
+                  </p>
+                  <p className="text-[11px] text-zinc-300">
+                    Other assets will be lost forever. Make sure you select the <strong>Bitcoin (BTC)</strong> network in your wallet.
+                  </p>
+                </div>
+              </div>
+
+              {/* QR Scanner Display */}
+              <div className="flex flex-col items-center justify-center p-6 rounded-2xl border border-white/10 bg-black/60 space-y-4">
+                <div className="relative rounded-2xl overflow-hidden border-2 border-white/10 bg-white p-2 shadow-2xl shadow-amber-500/5 max-w-[280px] w-full">
+                  <img
+                    src="/btc-qr.jpg"
+                    alt="Scan Bitcoin QR to Pay $19.99"
+                    className="w-full h-auto rounded-xl object-contain"
+                  />
+                </div>
+                <span className="text-[11px] font-mono text-zinc-400">
+                  Scan using Binance Wallet, Phantom, Coinbase, or any Bitcoin wallet
+                </span>
+              </div>
+
+              {/* BTC Deposit Address with Copy Button */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono uppercase tracking-wider text-zinc-300">
+                  Bitcoin Deposit Address (BTC Network)
+                </label>
+                <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/80 p-3">
+                  <span className="font-mono text-xs text-amber-300 break-all select-all flex-1">
+                    {BTC_ADDRESS}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyAddress}
+                    className="flex shrink-0 items-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-mono text-amber-300 hover:bg-amber-500/20 transition"
+                  >
+                    {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                    <span>{copied ? 'Copied' : 'Copy'}</span>
+                  </button>
+                </div>
               </div>
 
               {error && (
@@ -191,40 +262,20 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              {/* Payment Method Selector */}
-              <div className="grid grid-cols-2 gap-3 font-mono text-xs">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('card')}
-                  className={`flex items-center justify-center gap-2 rounded-xl border p-3.5 transition ${
-                    paymentMethod === 'card'
-                      ? 'border-amber-400 bg-amber-500/10 text-white font-bold'
-                      : 'border-white/10 bg-black/40 text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  <CreditCard className="h-4 w-4 text-amber-400" />
-                  <span>Credit / Debit Card</span>
-                </button>
+              {/* Email Collection Form */}
+              <form onSubmit={handleSubmit} className="space-y-5 pt-2 border-t border-white/10">
+                {/* Mandatory Notice regarding email delivery */}
+                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/30 p-4 text-xs text-emerald-200 flex items-start gap-2.5">
+                  <Mail className="h-5 w-5 shrink-0 text-emerald-400 mt-0.5" />
+                  <p className="leading-relaxed">
+                    <strong>After successful payment</strong>, you will get an email regarding your Secret ID and access link in a short time.
+                  </p>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('crypto_btc')}
-                  className={`flex items-center justify-center gap-2 rounded-xl border p-3.5 transition ${
-                    paymentMethod === 'crypto_btc'
-                      ? 'border-amber-400 bg-amber-500/10 text-white font-bold'
-                      : 'border-white/10 bg-black/40 text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  <Bitcoin className="h-4 w-4 text-amber-400" />
-                  <span>BTC / Crypto</span>
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Email Address */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-mono uppercase tracking-wider text-zinc-300">
-                    Email Address <span className="text-amber-400">*</span>
+                    Your Email Address <span className="text-amber-400">*</span>
                   </label>
                   <input
                     type="email"
@@ -235,14 +286,14 @@ export default function CheckoutPage() {
                     className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3.5 text-sm text-white placeholder-zinc-500 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
                   />
                   <p className="text-[10px] text-zinc-500 font-mono">
-                    Your unique Secret ID and reveal instructions will be dispatched here.
+                    We will send your Secret ID and reveal instructions to this address.
                   </p>
                 </div>
 
-                {/* Name */}
+                {/* Name (Optional) */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-mono uppercase tracking-wider text-zinc-300">
-                    Your Name (Optional)
+                    Name / Alias (Optional)
                   </label>
                   <input
                     type="text"
@@ -253,31 +304,19 @@ export default function CheckoutPage() {
                   />
                 </div>
 
-                {/* Method Specific Details */}
-                {paymentMethod === 'card' ? (
-                  <div className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-2 text-xs">
-                    <div className="flex items-center justify-between text-zinc-300 font-mono text-[11px]">
-                      <span className="flex items-center gap-1.5">
-                        <Lock className="h-3.5 w-3.5 text-emerald-400" />
-                        <span>Encrypted Card Gateway</span>
-                      </span>
-                      <span className="text-zinc-500">PCI-DSS Compliant</span>
-                    </div>
-                    <p className="text-zinc-400 text-[11px] leading-relaxed">
-                      Payments are processed securely via 256-bit SSL encryption. We never touch or store raw card information on our servers.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="rounded-2xl border border-amber-500/20 bg-amber-950/20 p-4 space-y-2 text-xs">
-                    <div className="flex items-center gap-2 text-amber-300 font-mono text-[11px] font-bold">
-                      <Bitcoin className="h-4 w-4 text-amber-400" />
-                      <span>Direct Crypto Settlement Layer</span>
-                    </div>
-                    <p className="text-zinc-400 text-[11px] leading-relaxed">
-                      Instant on-chain confirmation. Your Secret ID will be bound immediately upon network confirmation.
-                    </p>
-                  </div>
-                )}
+                {/* Optional TX Hash / Sender address */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-zinc-300">
+                    Transaction Hash / TXID (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={txHash}
+                    onChange={(e) => setTxHash(e.target.value)}
+                    placeholder="Optional: Paste Bitcoin TXID or sender wallet for faster match"
+                    className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-xs font-mono text-white placeholder-zinc-600 focus:border-amber-400 focus:outline-none"
+                  />
+                </div>
 
                 {/* Mandated Disclosures & Checkboxes */}
                 <div className="space-y-3 pt-2">
@@ -318,28 +357,28 @@ export default function CheckoutPage() {
                   </label>
                 </div>
 
-                {/* Primary Action Button */}
+                {/* Submit Action Button */}
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4 text-sm font-bold uppercase tracking-widest text-zinc-950 shadow-xl shadow-amber-500/20 hover:from-amber-400 hover:to-amber-500 hover:scale-[1.01] active:scale-[0.99] transition disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4 text-sm font-bold uppercase tracking-widest text-zinc-950 shadow-xl shadow-amber-500/20 hover:from-amber-400 hover:to-amber-500 hover:scale-[1.01] active:scale-[0.99] transition disabled:opacity-50"
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-2">
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-950 border-t-transparent" />
-                      <span>Securing Your Secret...</span>
+                      <span>Recording Payment & Registering Email...</span>
                     </div>
                   ) : (
                     <>
-                      <Lock className="h-4 w-4 text-zinc-950" />
-                      <span>Pay $19.99 & Secure Secret</span>
+                      <Bitcoin className="h-4 w-4 text-zinc-950" />
+                      <span>I Have Sent Payment — Register My Email</span>
                       <ArrowRight className="h-4 w-4 text-zinc-950" />
                     </>
                   )}
                 </button>
 
                 <div className="text-center text-[10px] font-mono text-zinc-500">
-                  🔒 Bank-Grade 256-Bit SSL Encryption • Instant Secret Delivery
+                  🔒 On-Chain Bitcoin Settlement • Guaranteed Delivery
                 </div>
               </form>
             </div>

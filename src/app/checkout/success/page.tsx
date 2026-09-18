@@ -12,7 +12,9 @@ import {
   ShieldCheck,
   Calendar,
   Sparkles,
-  ExternalLink
+  Bitcoin,
+  CheckCircle2,
+  Clock
 } from 'lucide-react';
 import { CountdownTimer } from '@/components/secret/CountdownTimer';
 import { EmailModal } from '@/components/secret/EmailModal';
@@ -21,6 +23,7 @@ function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const secretId = searchParams.get('id') || 'SECRET-7F3A92';
   const customerEmail = searchParams.get('email') || 'collector@thesecret.club';
+  const isBtc = searchParams.get('method') === 'btc';
 
   const [copied, setCopied] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -34,9 +37,9 @@ function CheckoutSuccessContent() {
   return (
     <div className="mx-auto max-w-2xl text-center space-y-8">
       {/* Top Badge */}
-      <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-950/40 px-4 py-1.5 text-xs font-mono tracking-widest text-emerald-300">
-        <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-        <span>PAYMENT CONFIRMED • CUSTODY REGISTERED</span>
+      <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-950/40 px-4 py-1.5 text-xs font-mono tracking-widest text-amber-300">
+        <Bitcoin className="h-3.5 w-3.5 text-amber-400" />
+        <span>BITCOIN PAYMENT SUBMITTED • EMAIL REGISTERED</span>
       </div>
 
       {/* Main Announcement */}
@@ -44,15 +47,20 @@ function CheckoutSuccessContent() {
         <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white">
           Your Secret has been secured.
         </h1>
-        <p className="text-sm text-zinc-400 font-sans">
-          You are now registered as the verified custodian of this mystery experience.
-        </p>
+        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/30 p-4 text-xs text-emerald-300 font-sans max-w-lg mx-auto leading-relaxed">
+          <p>
+            <strong>After successful payment</strong>, you will get an email regarding your Secret ID and access link in a short time.
+          </p>
+          <p className="mt-1 text-[11px] text-zinc-400">
+            Registered to: <span className="text-white font-mono">{customerEmail}</span>
+          </p>
+        </div>
       </div>
 
       {/* Primary Secret ID Box */}
       <div className="relative rounded-3xl border border-amber-500/40 bg-gradient-to-b from-zinc-900 via-zinc-950 to-black p-8 sm:p-10 shadow-2xl shadow-amber-500/10">
         <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-400">
-          YOUR UNIQUE IDENTIFIER
+          YOUR ALLOCATED SECRET IDENTIFIER
         </span>
 
         <div className="my-4 flex items-center justify-center gap-3">
@@ -68,9 +76,9 @@ function CheckoutSuccessContent() {
           </button>
         </div>
 
-        {/* Warning copy */}
+        {/* Notice */}
         <div className="rounded-xl border border-white/5 bg-black/50 p-3.5 text-xs font-mono text-zinc-400">
-          ⚠️ “Save your Secret ID. We’ll also send it to your email.”
+          ⚠️ “Save your Secret ID. We will also send your confirmation email in a short time.”
         </div>
 
         {/* Reveal Target Date */}
@@ -103,7 +111,7 @@ function CheckoutSuccessContent() {
           className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 py-4 text-sm font-mono text-zinc-200 hover:bg-white/10 hover:text-white transition"
         >
           <Mail className="h-4 w-4 text-amber-400" />
-          <span>Preview Confirmation Email</span>
+          <span>Preview Email Notice</span>
         </button>
       </div>
 
