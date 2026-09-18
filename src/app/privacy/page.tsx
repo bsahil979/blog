@@ -1,70 +1,61 @@
-import { Metadata } from 'next';
-import { constructMetadata } from '@/lib/seo';
-import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
+import React from 'react';
+import { ShieldAlert, Lock } from 'lucide-react';
 
-export const metadata: Metadata = constructMetadata({
-  title: 'Privacy Policy — AIForDevs',
-  description:
-    'Privacy policy for AIForDevs.tech. Learn how we handle technical analytics and respect developer privacy.',
-  canonicalUrl: '/privacy',
-});
+export const metadata = {
+  title: 'Privacy Policy — THE SECRET',
+  description: 'Privacy Policy describing data minimization and security measures for The Secret.'
+};
 
 export default function PrivacyPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-      <Breadcrumbs items={[{ name: 'Privacy', url: '/privacy' }]} />
+    <div className="min-h-screen bg-[#070709] py-16 px-4 sm:px-6 lg:px-8 text-zinc-100 font-sans">
+      <div className="mx-auto max-w-3xl space-y-8">
+        <div className="rounded-xl border border-amber-500/30 bg-amber-950/30 p-4 text-xs text-amber-200 flex items-start gap-2.5">
+          <ShieldAlert className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
+          <span>
+            <strong>Legal Notice:</strong> Standard privacy disclosures. Subject to professional legal review in respective jurisdictions.
+          </span>
+        </div>
 
-      <div className="space-y-4 mb-10 pb-6 border-b border-zinc-800">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-          Privacy Policy
-        </h1>
-        <p className="text-xs font-mono text-zinc-400">
-          Last Updated: September 1, 2026
-        </p>
-      </div>
+        <div className="border-b border-white/10 pb-4">
+          <h1 className="text-3xl font-bold text-white">Privacy Policy</h1>
+          <p className="text-xs font-mono text-zinc-500 mt-1">Last Updated: September 2026</p>
+        </div>
 
-      <div className="space-y-8 text-sm text-zinc-300 leading-relaxed">
-        <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white">1. Overview</h2>
-          <p>
-            AIForDevs (&ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;) operates aifordevs.tech. We believe in privacy-conscious web design. We do not sell your personal data, track your keystrokes, or sell email lists to third-party advertisers.
-          </p>
-        </section>
+        <div className="space-y-6 text-sm text-zinc-300 leading-relaxed">
+          <section className="space-y-2">
+            <h2 className="text-lg font-bold text-white">1. Data Minimization Commitment</h2>
+            <p>
+              We practice strict data minimization. We only collect the minimal personal data necessary to execute your transaction and deliver your Secret:
+            </p>
+            <ul className="list-disc pl-5 space-y-1 text-zinc-400">
+              <li><strong>Email Address:</strong> To deliver your Secret ID confirmation, receipt, and reveal announcement.</li>
+              <li><strong>Billing Name:</strong> For transaction authorization and anti-fraud verification.</li>
+              <li><strong>Technical Logs:</strong> Minimal IP and security logs to protect against brute-force enumeration attacks.</li>
+            </ul>
+          </section>
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white">2. Information We Collect</h2>
-          <p>
-            When you visit AIForDevs, we may collect standard anonymous web telemetry (such as browser type, referring URL, pages visited, and general geographic country) to monitor server health, performance, and popular content.
-          </p>
-          <p>
-            If you voluntarily submit inquiries or corrections through our contact form, we collect the name and email address provided to respond to your request.
-          </p>
-        </section>
+          <section className="space-y-2">
+            <h2 className="text-lg font-bold text-white">2. Payment Data</h2>
+            <p>
+              Payment card details are entered directly into encrypted iframe elements handled by our PCI-DSS certified payment processor (Stripe). Our application servers never view, process, or store raw credit card numbers or CVC codes.
+            </p>
+          </section>
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white">3. Cookies and Analytics</h2>
-          <p>
-            We may use privacy-preserving analytics solutions and cookies to understand aggregated visitor trends. You can configure your browser to reject cookies without impacting your ability to browse the directory or read comparisons.
-          </p>
-        </section>
+          <section className="space-y-2">
+            <h2 className="text-lg font-bold text-white">3. Third-Party Sharing</h2>
+            <p>
+              We do NOT sell, rent, monetize, or trade customer contact information to data brokers, advertising networks, or third parties under any circumstances.
+            </p>
+          </section>
 
-        <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white">4. Third-Party Outbound Links</h2>
-          <p>
-            Our website links to official third-party software websites (such as OpenAI, Anthropic, Cursor, GitHub, etc.). When clicking external links, you leave AIForDevs and are subject to the privacy practices and terms of those third-party services.
-          </p>
-        </section>
-
-        <section className="space-y-3">
-          <h2 className="text-lg font-bold text-white">5. Contact</h2>
-          <p>
-            If you have questions regarding this Privacy Policy, contact us via our contact form at{' '}
-            <a href="/contact" className="text-indigo-400 hover:underline">
-              /contact
-            </a>
-            .
-          </p>
-        </section>
+          <section className="space-y-2">
+            <h2 className="text-lg font-bold text-white">4. Your Rights & Deletion</h2>
+            <p>
+              You have the right to request access to or deletion of your purchase records at any time by contacting <span className="font-mono text-amber-300">privacy@thesecret.club</span>.
+            </p>
+          </section>
+        </div>
       </div>
     </div>
   );

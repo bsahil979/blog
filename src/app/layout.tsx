@@ -1,11 +1,9 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
-import { StructuredData } from '@/components/ui/StructuredData';
+import { SecretHeader } from '@/components/layout/SecretHeader';
+import { SecretFooter } from '@/components/layout/SecretFooter';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
-import { generateWebsiteSchema, generateOrganizationSchema, constructMetadata } from '@/lib/seo';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -17,34 +15,47 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-export const metadata: Metadata = constructMetadata({
-  title: 'AIForDevs — Find & Compare the Best AI Tools for Developers',
+export const metadata: Metadata = {
+  title: 'THE SECRET — You Paid to Discover What Happens Next',
   description:
-    'Discover, compare, and find the best AI tools for coding, research, productivity, and developer workflows.',
-  canonicalUrl: '/',
-});
+    'A guaranteed digital mystery experience. $19.99 for one locked Secret. Revealed synchronously on September 30, 2026. No lottery, no gambling, guaranteed digital content.',
+  keywords: [
+    'The Secret',
+    'digital mystery experience',
+    'guaranteed digital content',
+    'synchronous reveal',
+    'narrative mystery',
+    'cryptographic archive'
+  ],
+  openGraph: {
+    title: 'THE SECRET — Something is waiting for you.',
+    description: 'You paid to discover what happens next. One secret. One reveal. No spoilers.',
+    type: 'website',
+    url: 'https://thesecret.club',
+    siteName: 'The Secret',
+    locale: 'en_US'
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'THE SECRET — Something is waiting for you.',
+    description: 'One secret. One reveal. No spoilers. Guaranteed digital experience.'
+  }
+};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const websiteSchema = generateWebsiteSchema();
-  const organizationSchema = generateOrganizationSchema();
-
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
     >
-      <head>
-        <StructuredData data={websiteSchema} />
-        <StructuredData data={organizationSchema} />
-      </head>
-      <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100 font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
-        <Header />
+      <body className="min-h-full flex flex-col bg-[#070709] text-zinc-100 font-sans selection:bg-amber-500/25 selection:text-white">
+        <SecretHeader />
         <main className="flex-1 w-full">{children}</main>
-        <Footer />
+        <SecretFooter />
         <GoogleAnalytics />
       </body>
     </html>

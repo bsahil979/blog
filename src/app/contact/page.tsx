@@ -1,101 +1,136 @@
-import { Metadata } from 'next';
-import { constructMetadata } from '@/lib/seo';
-import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
-import { InfoIcon } from '@/components/ui/Icons';
+'use client';
 
-export const metadata: Metadata = constructMetadata({
-  title: 'Contact AIForDevs — Corrections & Submissions',
-  description:
-    'Submit corrections, request tool profile updates, or get in touch with the AIForDevs editorial team.',
-  canonicalUrl: '/contact',
-});
+import React, { useState } from 'react';
+import { Mail, MessageSquare, Clock, CheckCircle2, Send, Lock } from 'lucide-react';
 
 export default function ContactPage() {
+  const [submitted, setSubmitted] = useState(false);
+  const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('General Inquiry');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+  };
+
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-      <Breadcrumbs items={[{ name: 'Contact', url: '/contact' }]} />
-
-      <div className="space-y-4 mb-10">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-          Contact & Corrections
-        </h1>
-        <p className="text-base sm:text-lg text-zinc-200 leading-relaxed font-normal">
-          Have an updated pricing tier, a factual correction, or an AI developer tool you would like us to review? Let us know.
-        </p>
-      </div>
-
-      <div className="space-y-8">
-        <div className="p-6 md:p-8 rounded-2xl bg-[#13151a] border border-[#262830] space-y-6 shadow-sm">
-          <form className="space-y-5">
-            <div>
-              <label htmlFor="name" className="block text-xs font-mono font-bold text-zinc-200 mb-2">
-                Your Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                placeholder="Ada Lovelace"
-                className="w-full px-4 py-2.5 bg-[#0b0c0e] border border-[#2b2e38] rounded-lg text-sm text-white placeholder-zinc-400 focus:outline-none focus:border-indigo-500 font-medium"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-xs font-mono font-bold text-zinc-200 mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="developer@example.com"
-                className="w-full px-4 py-2.5 bg-[#0b0c0e] border border-[#2b2e38] rounded-lg text-sm text-white placeholder-zinc-400 focus:outline-none focus:border-indigo-500 font-medium"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="topic" className="block text-xs font-mono font-bold text-zinc-200 mb-2">
-                Inquiry Topic
-              </label>
-              <select
-                id="topic"
-                name="topic"
-                className="w-full px-4 py-2.5 bg-[#0b0c0e] border border-[#2b2e38] rounded-lg text-sm text-zinc-200 font-medium focus:outline-none focus:border-indigo-500"
-              >
-                <option value="correction">Pricing or Feature Correction</option>
-                <option value="submission">Submit a New Developer Tool</option>
-                <option value="editorial">Editorial Question</option>
-                <option value="general">General Feedback</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="message" className="block text-xs font-mono font-bold text-zinc-200 mb-2">
-                Message / Details
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                rows={5}
-                placeholder="Include tool name, official documentation link, and specific details..."
-                className="w-full px-4 py-2.5 bg-[#0b0c0e] border border-[#2b2e38] rounded-lg text-sm text-white placeholder-zinc-400 focus:outline-none focus:border-indigo-500 font-medium"
-              />
-            </div>
-
-            <button
-              type="button"
-              className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 shadow-sm"
-            >
-              Send Message
-            </button>
-          </form>
+    <div className="min-h-screen bg-[#070709] py-16 px-4 sm:px-6 lg:px-8 text-zinc-100">
+      <div className="mx-auto max-w-3xl space-y-12">
+        {/* Header */}
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-mono tracking-widest text-amber-300">
+            <Mail className="h-4 w-4 text-amber-400" />
+            <span>DIRECT SUPPORT DESK</span>
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white">
+            Contact Support
+          </h1>
+          <p className="text-sm text-zinc-400 max-w-md mx-auto">
+            Questions about your Secret ID, reveal schedule, or pre-reveal refund? Our team responds within 24 hours.
+          </p>
         </div>
 
-        <div className="p-4 rounded-xl bg-[#16181f] border border-[#2b2e38] text-xs text-zinc-300 flex items-start gap-3">
-          <InfoIcon className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-          <p className="leading-relaxed">
-            We review pricing change notifications promptly to ensure directory records remain accurate for the developer community.
-          </p>
+        {/* Contact Channels Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-6 space-y-2">
+            <div className="flex items-center gap-2 text-amber-400 font-mono text-xs">
+              <Mail className="h-4 w-4" />
+              <span>PRIMARY EMAIL DESK</span>
+            </div>
+            <div className="text-base font-bold text-white font-mono">
+              help@thesecret.club
+            </div>
+            <p className="text-xs text-zinc-400">
+              For general inquiries, lost Secret ID lookup, and technical questions.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-6 space-y-2">
+            <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs">
+              <Clock className="h-4 w-4" />
+              <span>SUPPORT HOURS & SLA</span>
+            </div>
+            <div className="text-base font-bold text-white font-mono">
+              Mon — Fri / 24h Response
+            </div>
+            <p className="text-xs text-zinc-400">
+              Inquiries submitted over the weekend are answered the following Monday.
+            </p>
+          </div>
+        </div>
+
+        {/* Contact Form */}
+        <div className="rounded-3xl border border-white/10 bg-zinc-900/80 p-8 backdrop-blur-xl shadow-2xl space-y-6">
+          {submitted ? (
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/30 p-8 text-center space-y-3">
+              <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-400" />
+              <h3 className="text-lg font-bold text-white">Message Dispatched</h3>
+              <p className="text-xs text-zinc-300 max-w-sm mx-auto">
+                Thank you. Your message has been received by our support team. We will respond to <strong>{email}</strong> shortly.
+              </p>
+              <button
+                onClick={() => setSubmitted(false)}
+                className="mt-4 text-xs font-mono text-amber-400 underline underline-offset-4"
+              >
+                Send another message
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono uppercase tracking-wider text-zinc-300">
+                  Your Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your.email@domain.com"
+                  className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-amber-400 focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono uppercase tracking-wider text-zinc-300">
+                  Inquiry Topic
+                </label>
+                <select
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white focus:border-amber-400 focus:outline-none"
+                >
+                  <option value="General Inquiry">General Product Inquiry</option>
+                  <option value="Lost Secret ID">Lost Secret ID Recovery</option>
+                  <option value="Pre-reveal Refund">Pre-Reveal Refund Request</option>
+                  <option value="Technical Issue">Technical / Access Question</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-mono uppercase tracking-wider text-zinc-300">
+                  Your Message
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Describe your inquiry or include your Secret ID..."
+                  className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-amber-400 focus:outline-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-3.5 text-xs font-bold uppercase tracking-wider text-zinc-950 hover:bg-amber-400 transition"
+              >
+                <Send className="h-4 w-4" />
+                <span>Transmit Message to Support</span>
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>
